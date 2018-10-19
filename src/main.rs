@@ -4,11 +4,18 @@ use cgmath::*;
 mod ray;
 use ray::{Ray};
 
+pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
+    assert!(t <= 1.0);
+    assert!(t >= 0.0);
+
+    (1.0 - t) * start + t * end
+}
+
 fn colour(r: &Ray) -> Vector3<f32> {
     let unit_direction = r.direction.normalize();
     let t = 0.5 * (unit_direction.y + 1.0);
     // lerp blue depending on y-coordinate
-    (1.0 - t) * Vector3::new(1.0, 1.0, 1.0) + t * Vector3::new(0.5, 0.7, 1.0)
+    lerp_v(t, Vector3::new(1.0, 1.0, 1.0), Vector3::new(0.5, 0.7, 1.0))
 }
 
 fn main() {
@@ -36,5 +43,21 @@ fn main() {
 
             println!("{} {} {}", ir, ig, ib);
         }
+    }
+}
+
+#[cfg(test)]
+mod lerp_tests {
+    use cgmath::*;
+    use lerp_v;
+
+    #[test]
+    pub fn works_at_extents() {
+        let black = Vector3::new(0.0, 0.0, 0.0);
+        let white = Vector3::new(1.0, 1.0, 1.0);
+
+        assert_eq!(lerp_v(0.0, black, white), Vector3::new(0.0, 0.0, 0.0));
+        assert_eq!(lerp_v(0.5, black, white), Vector3::new(0.5, 0.5, 0.5));
+        assert_eq!(lerp_v(1.0, black, white), Vector3::new(1.0, 1.0, 1.0));
     }
 }
