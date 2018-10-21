@@ -1,10 +1,13 @@
 use ray::*;
 use cgmath::*;
+use materials::{Material, Lambertian};
 
+#[derive(Clone)]
 pub struct HitRecord {
     pub t : f32,
     pub p : Vector3<f32>,
-    pub normal : Vector3<f32>
+    pub normal : Vector3<f32>,
+    pub material : Box<Material>
 }
 
 impl HitRecord {
@@ -12,7 +15,8 @@ impl HitRecord {
         return HitRecord {
             t: 0.0,
             p: Vector3::<f32>::new(0.0, 0.0, 0.0),
-            normal: Vector3::<f32>::new(0.0, 0.0, 0.0)
+            normal: Vector3::<f32>::new(0.0, 0.0, 0.0),
+            material: Box::new(Lambertian::new(0.0, 0.0, 0.0))
         };
     }
 }
@@ -23,14 +27,16 @@ pub trait Hittable {
 
 pub struct Sphere {
     radius : f32,
-    centre : Vector3<f32>
+    centre : Vector3<f32>,
+    material : Box<Material>
 }
 
 impl Sphere {
-    pub fn new(centre : Vector3<f32>, radius : f32) -> Sphere {
+    pub fn new(centre : Vector3<f32>, radius : f32, material: Box<Material>) -> Sphere {
         return Sphere {
             centre: centre,
-            radius: radius
+            radius: radius,
+            material: material
         };
     }
 }
@@ -48,6 +54,7 @@ impl Hittable for Sphere {
                 rec.t = temp;
                 rec.p = r.point_at_parameter(rec.t);
                 rec.normal = (rec.p - self.centre) / self.radius;
+                rec.material = self.material.clone();
                 return true;
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
@@ -55,6 +62,7 @@ impl Hittable for Sphere {
                 rec.t = temp;
                 rec.p = r.point_at_parameter(rec.t);
                 rec.normal = (rec.p - self.centre) / self.radius;
+                rec.material = self.material.clone();
                 return true;
             }
         }
@@ -71,9 +79,7 @@ pub fn hit_visitor(v: &Vec<Box<Hittable>>, r: &Ray, t_min : f32, t_max : f32, re
         if item.hit(&r, t_min, closest_so_far, &mut temp_rec) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
-            rec.t = temp_rec.t;
-            rec.p = temp_rec.p;
-            rec.normal = temp_rec.normal; // FIXME: bulky assignment
+            *rec = temp_rec.clone(); // oh shit material wasn't copied here
         }
     }
 
