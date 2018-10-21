@@ -9,6 +9,8 @@ mod hittables;
 use hittables::*;
 mod camera;
 use camera::{ Camera };
+mod utils;
+use utils::*;
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
     assert!(t <= 1.0);
@@ -20,7 +22,9 @@ pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32>
 fn colour(r: &Ray, world : &Vec<Box<Hittable>>) -> Vector3<f32> {
     let mut rec : HitRecord = HitRecord::new();
     if hit_visitor(world, r, 0.0, std::f32::MAX, &mut rec) {
-        return 0.5 * Vector3::<f32>::new(rec.normal.x + 1.0, rec.normal.y + 1.0, rec.normal.z + 1.0);
+        // Reflect off a diffuse thing
+        let target = rec.p + rec.normal + random_in_unit_sphere();
+        return 0.5 * colour( &Ray::new(rec.p, target - rec.p), world);
     }
     else {
         let unit_direction = r.direction.normalize();
