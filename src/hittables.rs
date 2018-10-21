@@ -50,7 +50,7 @@ impl Hittable for Sphere {
                 rec.normal = (rec.p - self.centre) / self.radius;
                 return true;
             }
-            let temp = (-b + (b * b - a * c)) / a;
+            let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 rec.t = temp;
                 rec.p = r.point_at_parameter(rec.t);
