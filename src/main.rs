@@ -2,6 +2,9 @@ extern crate cgmath;
 use cgmath::*;
 extern crate rand;
 use rand::{ thread_rng, Rng };
+#[macro_use]
+extern crate clap;
+use clap::{Arg, App};
 
 mod ray;
 use ray::{Ray};
@@ -44,9 +47,25 @@ fn colour(r: &Ray, world : &Vec<Box<Hittable>>, depth: i32) -> Vector3<f32> {
 }
 
 fn main() {
-    let nx : i32 = 200;
-    let ny : i32 = 100;
-    let number_of_samples = 100;
+    let m = App::new("raytracer3")
+            .about("Overcomplicated path-tracer")
+            .arg(Arg::with_name("width")
+                .short("w")
+                .long("width")
+                .takes_value(true))
+            .arg(Arg::with_name("height")
+                .short("h")
+                .long("height")
+                .takes_value(true))
+            .arg(Arg::with_name("samples")
+                .short("s")
+                .long("samples")
+                .takes_value(true))
+            .get_matches();
+
+    let nx = value_t!(m, "width", i32).unwrap_or(200);
+    let ny = value_t!(m, "height", i32).unwrap_or(100);
+    let number_of_samples = value_t!(m, "samples", i32).unwrap_or(100);
     let mut rng = thread_rng();
     let cam = Camera::new();
 

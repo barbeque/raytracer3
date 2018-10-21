@@ -6,3 +6,4 @@ authors = ["mike stedman <barbeque@users.noreply.github.com>"]
 [dependencies]
 cgmath = "*"
 rand = "*"
+clap = "*"
