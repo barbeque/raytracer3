@@ -63,9 +63,9 @@ fn main() {
                 .takes_value(true))
             .get_matches();
 
-    let nx = value_t!(m, "width", i32).unwrap_or(200);
-    let ny = value_t!(m, "height", i32).unwrap_or(100);
-    let number_of_samples = value_t!(m, "samples", i32).unwrap_or(100);
+    let nx = value_t!(m, "width", u32).unwrap_or(200);
+    let ny = value_t!(m, "height", u32).unwrap_or(100);
+    let number_of_samples = value_t!(m, "samples", u32).unwrap_or(100);
     let mut rng = thread_rng();
     let cam = Camera::new();
 
