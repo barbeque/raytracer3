@@ -55,8 +55,8 @@ fn main() {
     let mut world = Vec::<Box<Hittable>>::new();
     let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(0.8, 0.3, 0.3))));
     let s2 = Box::new(Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0, Box::new(Lambertian::new(0.8, 0.8, 0.0))));
-    let s3 = Box::new(Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.6, 0.2))));
-    let s4 = Box::new(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.8, 0.8))));
+    let s3 = Box::new(Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.6, 0.2, 0.3))));
+    let s4 = Box::new(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.8, 0.8, 1.0))));
     world.push(s1);
     world.push(s2);
     world.push(s3);

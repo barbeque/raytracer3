@@ -35,13 +35,15 @@ impl Material for Lambertian {
 
 #[derive(Clone)]
 pub struct Metal {
-    albedo: Vector3<f32>
+    albedo: Vector3<f32>,
+    fuzziness: f32
 }
 
 impl Metal {
-    pub fn new(r: f32, g: f32, b: f32) -> Metal {
+    pub fn new(r: f32, g: f32, b: f32, fuzziness: f32) -> Metal {
         Metal {
-            albedo: Vector3::new(r, g, b)
+            albedo: Vector3::new(r, g, b),
+            fuzziness: fuzziness.min(1.0)
         }
     }
 }
@@ -53,7 +55,9 @@ fn reflect(v : &Vector3<f32>, n : &Vector3<f32>) -> Vector3<f32> {
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Vector3<f32>, scattered: &mut Ray) -> bool {
         let reflected = reflect(&r_in.direction.normalize(), &rec.normal);
-        *scattered = Ray::new(rec.p, reflected);
+        // the bigger the sphere, the fuzzier reflections will be
+        let fuzzy_offshoot = self.fuzziness * random_in_unit_sphere();
+        *scattered = Ray::new(rec.p, reflected + fuzzy_offshoot);
         *attenuation = self.albedo;
 
         scattered.direction.dot(rec.normal) > 0.0
@@ -92,9 +96,16 @@ mod material_tests {
 
     #[test]
     pub fn test_metal_constructor() {
-        let m = Metal::new(1.0, 2.0, 3.0);
+        let m = Metal::new(1.0, 2.0, 3.0, 0.5);
         assert_eq!(m.albedo.x, 1.0);
         assert_eq!(m.albedo.y, 2.0);
         assert_eq!(m.albedo.z, 3.0);
+        assert_eq!(m.fuzziness, 0.5);
+    }
+
+    #[test]
+    pub fn test_metal_constructor_fuzziness_clamps() {
+        let m = Metal::new(1.0, 1.0, 1.0, 6.0);
+        assert_eq!(m.fuzziness, 1.0); // must clamp to <= 1.0
     }
 }
