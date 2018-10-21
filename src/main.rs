@@ -4,13 +4,17 @@ use cgmath::*;
 mod ray;
 use ray::{Ray};
 
-fn hit_sphere(centre : Vector3<f32>, radius : f32, ray : &Ray) -> bool {
+fn hit_sphere(centre : Vector3<f32>, radius : f32, ray : &Ray) -> f32 {
     let oc = ray.origin - centre;
     let a = ray.direction.dot(ray.direction);
     let b = 2.0 * oc.dot(ray.direction);
     let c = oc.dot(oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    (discriminant > 0.0)
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
@@ -21,8 +25,10 @@ pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32>
 }
 
 fn colour(r: &Ray) -> Vector3<f32> {
-    if hit_sphere(Vector3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Vector3::new(1.0, 0.0, 0.0) // pixels of the sphere
+    let t = hit_sphere(Vector3::new(0.0, 0.0, -1.0), 0.5, r);
+    if t > 0.0 {
+        let n = (r.point_at_parameter(t) - Vector3::new(0.0, 0.0, -1.0)).normalize();
+        return 0.5 * Vector3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0);
     }
 
     let unit_direction = r.direction.normalize();
