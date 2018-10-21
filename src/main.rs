@@ -1,10 +1,14 @@
 extern crate cgmath;
 use cgmath::*;
+extern crate rand;
+use rand::{ thread_rng, Rng };
 
 mod ray;
 use ray::{Ray};
 mod hittables;
 use hittables::*;
+mod camera;
+use camera::{ Camera };
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
     assert!(t <= 1.0);
@@ -28,13 +32,11 @@ fn colour(r: &Ray, world : &Vec<Box<Hittable>>) -> Vector3<f32> {
 fn main() {
     let nx : i32 = 200;
     let ny : i32 = 100;
+    let number_of_samples = 100;
+    let mut rng = thread_rng();
+    let cam = Camera::new();
 
     println!("P3\n{} {}\n255", nx, ny);
-
-    let lower_left_corner = Vector3::new(-2.0, -1.0, -1.0);
-    let horizontal = Vector3::new(4.0, 0.0, 0.0);
-    let vertical = Vector3::new(0.0, 2.0, 0.0);
-    let origin = Vector3::new(0.0, 0.0, 0.0);
 
     let mut world = Vec::<Box<Hittable>>::new();
     let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5));
@@ -44,11 +46,16 @@ fn main() {
 
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let u = i as f32 / nx as f32;
-            let v = j as f32 / ny as f32;
+            let mut col = Vector3::new(0.0, 0.0, 0.0);
+            for _sample in 0..number_of_samples {
+                // Multisample mode
+                let u = (i as f64 + rng.gen::<f64>()) as f32 / nx as f32;
+                let v = (j as f64 + rng.gen::<f64>()) as f32 / ny as f32;
+                let ray = cam.get_ray(u, v);
+                col += colour(&ray, &world);
+            }
 
-            let r = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let col = colour(&r, &world);
+            col /= number_of_samples as f32;
 
             let ir = (255.99 * col.x) as i32;
             let ig = (255.99 * col.y) as i32;
