@@ -3,19 +3,8 @@ use cgmath::*;
 
 mod ray;
 use ray::{Ray};
-
-fn hit_sphere(centre : Vector3<f32>, radius : f32, ray : &Ray) -> f32 {
-    let oc = ray.origin - centre;
-    let a = ray.direction.dot(ray.direction);
-    let b = 2.0 * oc.dot(ray.direction);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a);
-    }
-}
+mod hittables;
+use hittables::*;
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
     assert!(t <= 1.0);
@@ -24,17 +13,16 @@ pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32>
     (1.0 - t) * start + t * end
 }
 
-fn colour(r: &Ray) -> Vector3<f32> {
-    let t = hit_sphere(Vector3::new(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        let n = (r.point_at_parameter(t) - Vector3::new(0.0, 0.0, -1.0)).normalize();
-        return 0.5 * Vector3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0);
+fn colour(r: &Ray, world : &Vec<Box<Hittable>>) -> Vector3<f32> {
+    let mut rec : HitRecord = HitRecord::new();
+    if hit_visitor(world, r, 0.0, std::f32::MAX, &mut rec) {
+        return 0.5 * Vector3::<f32>::new(rec.normal.x + 1.0, rec.normal.y + 1.0, rec.normal.z + 1.0);
     }
-
-    let unit_direction = r.direction.normalize();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    // lerp blue depending on y-coordinate
-    lerp_v(t, Vector3::new(1.0, 1.0, 1.0), Vector3::new(0.5, 0.7, 1.0))
+    else {
+        let unit_direction = r.direction.normalize();
+        let t = 0.5 * (unit_direction.y + 1.0);
+        return lerp_v(t, Vector3::<f32>::new(1.0, 1.0, 1.0), Vector3::<f32>::new(0.5, 0.7, 1.0));
+    }
 }
 
 fn main() {
@@ -48,13 +36,19 @@ fn main() {
     let vertical = Vector3::new(0.0, 2.0, 0.0);
     let origin = Vector3::new(0.0, 0.0, 0.0);
 
+    let mut world = Vec::<Box<Hittable>>::new();
+    let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5));
+    let s2 = Box::new(Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0));
+    world.push(s1);
+    world.push(s2);
+
     for j in (0..ny).rev() {
         for i in 0..nx {
             let u = i as f32 / nx as f32;
             let v = j as f32 / ny as f32;
 
             let r = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let col = colour(&r);
+            let col = colour(&r, &world);
 
             let ir = (255.99 * col.x) as i32;
             let ig = (255.99 * col.y) as i32;
