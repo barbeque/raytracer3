@@ -21,7 +21,7 @@ pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32>
 
 fn colour(r: &Ray, world : &Vec<Box<Hittable>>) -> Vector3<f32> {
     let mut rec : HitRecord = HitRecord::new();
-    if hit_visitor(world, r, 0.0, std::f32::MAX, &mut rec) {
+    if hit_visitor(world, r, 0.001, std::f32::MAX, &mut rec) {
         // Reflect off a diffuse thing
         let target = rec.p + rec.normal + random_in_unit_sphere();
         return 0.5 * colour( &Ray::new(rec.p, target - rec.p), world);
@@ -60,6 +60,8 @@ fn main() {
             }
 
             col /= number_of_samples as f32;
+            // gamma correction
+            col = Vector3::new( col.x.sqrt(), col.y.sqrt(), col.z.sqrt() );
 
             let ir = (255.99 * col.x) as i32;
             let ig = (255.99 * col.y) as i32;
