@@ -52,6 +52,17 @@ fn reflect(v : &Vector3<f32>, n : &Vector3<f32>) -> Vector3<f32> {
     return v - 2.0 * v.dot(*n) * n;
 }
 
+fn refract(v: &Vector3<f32>, n: &Vector3<f32>, ni_over_nt: f32, refracted: &mut Vector3<f32>) -> bool {
+    let uv = v.normalize();
+    let dt = uv.dot(*n);
+    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    if discriminant > 0.0 {
+        *refracted = ni_over_nt * (v - n * dt) - n * discriminant.sqrt();
+        return true;
+    }
+    return false;
+}
+
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Vector3<f32>, scattered: &mut Ray) -> bool {
         let reflected = reflect(&r_in.direction.normalize(), &rec.normal);
@@ -61,6 +72,49 @@ impl Material for Metal {
         *attenuation = self.albedo;
 
         scattered.direction.dot(rec.normal) > 0.0
+    }
+    fn box_clone(&self) -> Box<Material> {
+        Box::new((*self).clone())
+    }
+}
+
+#[derive(Clone)]
+pub struct Dielectric {
+    pub ref_idx: f32
+}
+
+impl Dielectric {
+    pub fn new(ri: f32) -> Dielectric {
+        Dielectric { ref_idx: ri }
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Vector3<f32>, scattered: &mut Ray) -> bool {
+        let outward_normal : Vector3<f32>;
+        let reflected = reflect(&r_in.direction, &rec.normal);
+        let ni_over_nt : f32;
+        *attenuation = Vector3::<f32>::new(1.0, 1.0, 0.0);
+        let mut refracted = Vector3::<f32>::new(0.0, 0.0, 0.0);
+
+        if r_in.direction.dot(rec.normal) > 0.0 {
+            outward_normal = -rec.normal;
+            ni_over_nt = self.ref_idx;
+        }
+        else {
+            outward_normal = rec.normal;
+            ni_over_nt = 1.0 / self.ref_idx;
+        }
+
+        if refract(&r_in.direction, &outward_normal, ni_over_nt, &mut refracted) {
+            *scattered = Ray::new(rec.p, refracted);
+        }
+        else {
+            *scattered = Ray::new(rec.p, reflected);
+            return false;
+        }
+
+        true
     }
     fn box_clone(&self) -> Box<Material> {
         Box::new((*self).clone())
