@@ -148,7 +148,7 @@ impl Clone for Box<Material> {
 
 #[cfg(test)]
 mod material_tests {
-    use materials::{ Lambertian, Metal };
+    use materials::{ Lambertian, Metal, Dielectric };
 
     #[test]
     pub fn test_box_clone_trait() {
@@ -174,6 +174,12 @@ mod material_tests {
         assert_eq!(m.albedo.y, 2.0);
         assert_eq!(m.albedo.z, 3.0);
         assert_eq!(m.fuzziness, 0.5);
+    }
+
+    #[test]
+    pub fn test_dielectric_constructor() {
+        let d = Dielectric::new(0.75);
+        assert_eq!(d.ref_idx, 0.75);
     }
 
     #[test]
