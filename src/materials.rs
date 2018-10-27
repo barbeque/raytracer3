@@ -61,7 +61,7 @@ fn refract(v: &Vector3<f32>, n: &Vector3<f32>, ni_over_nt: f32, refracted: &mut 
         *refracted = ni_over_nt * (v - n * dt) - n * discriminant.sqrt();
         return true;
     }
-    return false;
+    false
 }
 
 fn schlick(cosine: f32, ref_idx: f32) -> f32 {
@@ -123,7 +123,6 @@ impl Material for Dielectric {
             reflect_prob = schlick(cosine, self.ref_idx);
         }
         else {
-            *scattered = Ray::new(rec.p, reflected);
             reflect_prob = 1.0;
         }
 
