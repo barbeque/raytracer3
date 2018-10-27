@@ -102,6 +102,7 @@ impl Material for Dielectric {
         let outward_normal : Vector3<f32>;
         let reflected = reflect(&r_in.direction, &rec.normal);
         let ni_over_nt : f32;
+        // glass absorbs nothing
         *attenuation = Vector3::<f32>::new(1.0, 1.0, 1.0);
         let mut refracted = Vector3::<f32>::new(0.0, 0.0, 0.0);
         let reflect_prob : f32;
@@ -115,7 +116,7 @@ impl Material for Dielectric {
         else {
             outward_normal = rec.normal;
             ni_over_nt = 1.0 / self.ref_idx;
-            cosine = -r_in.direction.dot(rec.normal) / r_in.direction.magnitude();
+            cosine = -(r_in.direction.dot(rec.normal)) / r_in.direction.magnitude();
         }
 
         if refract(&r_in.direction, &outward_normal, ni_over_nt, &mut refracted) {
