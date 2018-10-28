@@ -67,13 +67,18 @@ fn main() {
     let ny = value_t!(m, "height", u32).unwrap_or(100);
     let number_of_samples = value_t!(m, "samples", u32).unwrap_or(100);
     let mut rng = thread_rng();
-    let cam = Camera::new(90.0, nx as f32 / ny as f32);
-    let R = std::f32::consts::PI / 4.0;
+
+    let look_from = Vector3::new(-2.0, 2.0, 1.0);
+    let look_at = Vector3::new(0.0, 0.0, -1.0);
+    let look_up = Vector3::new(0.0, 1.0, 0.0);
+
+    let cam = Camera::new(look_from, look_at, look_up, 90.0, nx as f32 / ny as f32);
+    //let R = std::f32::consts::PI / 4.0;
 
     println!("P3\n{} {}\n255", nx, ny);
 
     let mut world = Vec::<Box<Hittable>>::new();
-    /*let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(0.8, 0.3, 0.3))));
+    let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(0.8, 0.3, 0.3))));
     let s2 = Box::new(Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0, Box::new(Lambertian::new(0.8, 0.8, 0.0))));
     let s3 = Box::new(Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.6, 0.2, 0.3))));
     let s4 = Box::new(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, Box::new(Dielectric::new(1.5))));
@@ -82,12 +87,7 @@ fn main() {
     world.push(s2);
     world.push(s3);
     world.push(s4);
-    world.push(s5);*/
-
-    let s1 = Box::new(Sphere::new(Vector3::new(-R, 0.0, -1.0), R, Box::new(Lambertian::new(0.0, 0.0, 1.0))));
-    let s2 = Box::new(Sphere::new(Vector3::new( R, 0.0, -1.0), R, Box::new(Lambertian::new(1.0, 0.0, 0.0))));
-    world.push(s1);
-    world.push(s2);
+    world.push(s5);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
