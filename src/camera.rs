@@ -9,11 +9,15 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Camera {
+    pub fn new(vertical_fov: f32, aspect_ratio: f32) -> Camera {
+        let theta = vertical_fov * std::f32::consts::PI / 180.0;
+        let half_height = (theta / 2.0).tan();
+        let half_width = aspect_ratio * half_height;
+
         Camera {
-            lower_left_corner: Vector3::new(-2.0, -1.0, -1.0),
-            horizontal: Vector3::new(4.0, 0.0, 0.0),
-            vertical: Vector3::new(0.0, 2.0, 0.0),
+            lower_left_corner: Vector3::new(-half_width, -half_height, -1.0),
+            horizontal: Vector3::new(2.0 * half_width, 0.0, 0.0),
+            vertical: Vector3::new(0.0, 2.0 * half_height, 0.0),
             origin: Vector3::new(0.0, 0.0, 0.0)
         }
     }
