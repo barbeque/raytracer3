@@ -15,7 +15,8 @@ use camera::{ Camera };
 mod utils;
 use utils::*;
 mod materials;
-use materials::*;
+mod generators;
+use generators::*;
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
     assert!(t <= 1.0);
@@ -61,6 +62,10 @@ fn main() {
                 .short("s")
                 .long("samples")
                 .takes_value(true))
+            .arg(Arg::with_name("aperture")
+                .short("a")
+                .long("aperture")
+                .takes_value(true))
             .get_matches();
 
     let nx = value_t!(m, "width", u32).unwrap_or(200);
@@ -68,28 +73,18 @@ fn main() {
     let number_of_samples = value_t!(m, "samples", u32).unwrap_or(100);
     let mut rng = thread_rng();
 
-    let look_from = Vector3::new(3.0, 3.0, 2.0);
-    let look_at = Vector3::new(0.0, 0.0, -1.0);
+    let look_from = Vector3::new(3.0, 2.0, 2.0);
+    let look_at = Vector3::new(0.0, 0.0, 0.0);
     let look_up = Vector3::new(0.0, 1.0, 0.0);
     let dist_to_focus = (look_from - look_at).magnitude();
-    let aperture = 2.0;
+    let aperture = value_t!(m, "aperture", f32).unwrap_or(0.75);
 
-    let cam = Camera::new(look_from, look_at, look_up, 20.0, nx as f32 / ny as f32, aperture, dist_to_focus);
+    let cam = Camera::new(look_from, look_at, look_up, 90.0, nx as f32 / ny as f32, aperture, dist_to_focus);
     //let R = std::f32::consts::PI / 4.0;
 
     println!("P3\n{} {}\n255", nx, ny);
 
-    let mut world = Vec::<Box<Hittable>>::new();
-    let s1 = Box::new(Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(0.8, 0.3, 0.3))));
-    let s2 = Box::new(Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0, Box::new(Lambertian::new(0.8, 0.8, 0.0))));
-    let s3 = Box::new(Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, Box::new(Metal::new(0.8, 0.6, 0.2, 0.3))));
-    let s4 = Box::new(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, Box::new(Dielectric::new(1.5))));
-    let s5 = Box::new(Sphere::new(Vector3::new(-1.0, 0.0, -1.0), -0.45, Box::new(Dielectric::new(1.5))));
-    world.push(s1);
-    world.push(s2);
-    world.push(s3);
-    world.push(s4);
-    world.push(s5);
+    let mut world = random_scene();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
