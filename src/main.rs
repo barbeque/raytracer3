@@ -68,11 +68,13 @@ fn main() {
     let number_of_samples = value_t!(m, "samples", u32).unwrap_or(100);
     let mut rng = thread_rng();
 
-    let look_from = Vector3::new(-2.0, 2.0, 1.0);
+    let look_from = Vector3::new(3.0, 3.0, 2.0);
     let look_at = Vector3::new(0.0, 0.0, -1.0);
     let look_up = Vector3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = (look_from - look_at).magnitude();
+    let aperture = 2.0;
 
-    let cam = Camera::new(look_from, look_at, look_up, 90.0, nx as f32 / ny as f32);
+    let cam = Camera::new(look_from, look_at, look_up, 20.0, nx as f32 / ny as f32, aperture, dist_to_focus);
     //let R = std::f32::consts::PI / 4.0;
 
     println!("P3\n{} {}\n255", nx, ny);
