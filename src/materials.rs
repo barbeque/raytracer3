@@ -4,7 +4,7 @@ use utils::*;
 use cgmath::*;
 use rand::{ thread_rng, Rng };
 
-pub trait Material {
+pub trait Material : Sync {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Vector3<f32>, scattered: &mut Ray) -> bool;
     fn box_clone(&self) -> Box<Material>;
 }

@@ -7,6 +7,8 @@ extern crate clap;
 use clap::{Arg, App};
 extern crate image;
 use std::time::{ Instant };
+extern crate rayon;
+use rayon::prelude::*;
 
 mod ray;
 use ray::{Ray};
@@ -77,7 +79,6 @@ fn main() {
     let nx = value_t!(m, "width", u32).unwrap_or(200);
     let ny = value_t!(m, "height", u32).unwrap_or(100);
     let number_of_samples = value_t!(m, "samples", u32).unwrap_or(100);
-    let mut rng = thread_rng();
 
     let look_from = Vector3::new(3.0, 2.0, 2.0);
     let look_at = Vector3::new(0.0, 0.0, 0.0);
@@ -98,14 +99,17 @@ fn main() {
 
     for j in 0..ny {
         for i in 0..nx {
-            let mut col = Vector3::new(0.0, 0.0, 0.0);
-            for _sample in 0..number_of_samples {
-                // Multisample mode
-                let u = (i as f64 + rng.gen::<f64>()) as f32 / nx as f32;
-                let v = (j as f64 + rng.gen::<f64>()) as f32 / ny as f32;
-                let ray = cam.get_ray(u, v);
-                col += colour(&ray, &world, 0);
-            }
+            // Do multisamples with Rayon
+            let mut col : Vector3<f32> = (0..number_of_samples).into_par_iter()
+                .map(|_sample| {
+                    let mut rng = thread_rng();
+
+                    let u = (i as f64 + rng.gen::<f64>()) as f32 / nx as f32;
+                    let v = (j as f64 + rng.gen::<f64>()) as f32 / ny as f32;
+                    let ray = cam.get_ray(u, v);
+                    colour(&ray, &world, 0)
+                })
+                .sum();
 
             col /= number_of_samples as f32;
             // gamma correction
