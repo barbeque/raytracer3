@@ -6,6 +6,7 @@ use rand::{ thread_rng, Rng };
 extern crate clap;
 use clap::{Arg, App};
 extern crate image;
+use std::time::{ Instant };
 
 mod ray;
 use ray::{Ray};
@@ -93,6 +94,8 @@ fn main() {
     image_buf.resize((nx * ny * 3) as usize, 0);
     assert_eq!(image_buf.len(), (nx * ny * 3) as usize);
 
+    let start = Instant::now();
+
     for j in 0..ny {
         for i in 0..nx {
             let mut col = Vector3::new(0.0, 0.0, 0.0);
@@ -119,6 +122,8 @@ fn main() {
             image_buf[idx + 2] = ib;
         }
     }
+
+    println!("Completed in {} seconds", start.elapsed().as_secs());
 
     // write image out
     image::save_buffer(output_filename, &image_buf, nx, ny, image::RGB(8)).unwrap();
