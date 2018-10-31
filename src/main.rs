@@ -5,6 +5,7 @@ use rand::{ thread_rng, Rng };
 #[macro_use]
 extern crate clap;
 use clap::{Arg, App};
+extern crate image;
 
 mod ray;
 use ray::{Ray};
@@ -66,6 +67,10 @@ fn main() {
                 .short("a")
                 .long("aperture")
                 .takes_value(true))
+            .arg(Arg::with_name("OUTPUT")
+                .help("Sets the image file to output")
+                .required(false)
+                .index(1))
             .get_matches();
 
     let nx = value_t!(m, "width", u32).unwrap_or(200);
@@ -80,13 +85,15 @@ fn main() {
     let aperture = value_t!(m, "aperture", f32).unwrap_or(0.75);
 
     let cam = Camera::new(look_from, look_at, look_up, 90.0, nx as f32 / ny as f32, aperture, dist_to_focus);
-    //let R = std::f32::consts::PI / 4.0;
 
-    println!("P3\n{} {}\n255", nx, ny);
+    let world = random_scene();
+    let output_filename = m.value_of("OUTPUT").unwrap_or("image.png");
 
-    let mut world = random_scene();
+    let mut image_buf = Vec::<u8>::with_capacity((nx * ny * 3) as usize);
+    image_buf.resize((nx * ny * 3) as usize, 0);
+    assert_eq!(image_buf.len(), (nx * ny * 3) as usize);
 
-    for j in (0..ny).rev() {
+    for j in 0..ny {
         for i in 0..nx {
             let mut col = Vector3::new(0.0, 0.0, 0.0);
             for _sample in 0..number_of_samples {
@@ -101,13 +108,20 @@ fn main() {
             // gamma correction
             col = Vector3::new( col.x.sqrt(), col.y.sqrt(), col.z.sqrt() );
 
-            let ir = (255.99 * col.x) as i32;
-            let ig = (255.99 * col.y) as i32;
-            let ib = (255.99 * col.z) as i32;
+            let ir = (255.99 * col.x) as u8;
+            let ig = (255.99 * col.y) as u8;
+            let ib = (255.99 * col.z) as u8;
 
-            println!("{} {} {}", ir, ig, ib);
+            let idx = (((ny - 1) - j) * nx * 3 + i * 3) as usize;
+
+            image_buf[idx] = ir;
+            image_buf[idx + 1] = ig;
+            image_buf[idx + 2] = ib;
         }
     }
+
+    // write image out
+    image::save_buffer(output_filename, &image_buf, nx, ny, image::RGB(8)).unwrap();
 }
 
 #[cfg(test)]

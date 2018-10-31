@@ -6,7 +6,6 @@ use materials::*;
 pub fn random_scene() -> Vec<Box<Hittable>> {
     let mut rng = thread_rng();
 
-    let n = 500;
     let mut list = Vec::<Box<Hittable>>::new();
     list.push(Box::new(Sphere::new(Vector3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(Lambertian::new(0.5, 0.5, 0.5)))));
 

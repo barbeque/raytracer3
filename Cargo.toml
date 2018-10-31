@@ -7,3 +7,5 @@ authors = ["mike stedman <barbeque@users.noreply.github.com>"]
 cgmath = "*"
 rand = "*"
 clap = "*"
+rayon = "*"
+image = "*"
