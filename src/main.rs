@@ -83,7 +83,7 @@ fn main() {
     let look_from = Vector3::new(3.0, 2.0, 2.0);
     let look_at = Vector3::new(0.0, 0.0, 0.0);
     let look_up = Vector3::new(0.0, 1.0, 0.0);
-    let dist_to_focus = (look_from - look_at).magnitude();
+    let dist_to_focus = (look_from - look_at).magnitude() * 0.5;
     let aperture = value_t!(m, "aperture", f32).unwrap_or(0.75);
 
     let cam = Camera::new(look_from, look_at, look_up, 90.0, nx as f32 / ny as f32, aperture, dist_to_focus);
