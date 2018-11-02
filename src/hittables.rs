@@ -22,7 +22,8 @@ impl HitRecord {
 }
 
 pub trait Hittable : Sync {
-    fn hit(&self, r: &Ray, t_min : f32, t_max : f32, rec : &mut HitRecord) -> bool;
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool;
+    fn unwrap_uv(&self, hit_point: &Vector3<f32>) -> Vector2<f32>;
 }
 
 pub struct Sphere {
@@ -67,6 +68,14 @@ impl Hittable for Sphere {
             }
         }
         false
+    }
+
+    fn unwrap_uv(&self, hit_point: &Vector3<f32>) -> Vector2<f32> {
+        let vp = (self.centre - hit_point).normalize();
+        let u = 0.5 + vp.z.atan2(vp.x) / 2.0 * std::f32::consts::PI;
+        let v = 0.5 - vp.y.asin() / std::f32::consts::PI;
+
+        Vector2::<f32>::new(u, v)
     }
 }
 
