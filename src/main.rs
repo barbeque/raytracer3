@@ -91,8 +91,7 @@ fn main() {
     let world = random_scene();
     let output_filename = m.value_of("OUTPUT").unwrap_or("image.png");
 
-    let mut image_buf = Vec::<u8>::with_capacity((nx * ny * 3) as usize);
-    image_buf.resize((nx * ny * 3) as usize, 0);
+    let mut image_buf = vec![0 as u8; (nx * ny * 3) as usize];
     assert_eq!(image_buf.len(), (nx * ny * 3) as usize);
 
     let start = Instant::now();
