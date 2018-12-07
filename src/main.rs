@@ -1,13 +1,7 @@
-extern crate cgmath;
 use cgmath::*;
-extern crate rand;
 use rand::{ thread_rng, Rng };
-#[macro_use]
-extern crate clap;
-use clap::{Arg, App};
-extern crate image;
+use clap::{Arg, App, value_t};
 use std::time::{ Instant };
-extern crate rayon;
 use rayon::prelude::*;
 
 mod ray;
