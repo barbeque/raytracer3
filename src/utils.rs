@@ -25,7 +25,7 @@ pub fn mul_vec(v1: &Vector3<f32>, v2: &Vector3<f32>) -> Vector3<f32> {
 #[cfg(test)]
 mod test_utils {
     use cgmath::*;
-    use utils::*;
+    use crate::utils::*;
     #[test]
     pub fn test_multiply_vectors() {
         let v1 = Vector3::<f32>::new(1.0, 3.0, 2.0);

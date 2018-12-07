@@ -1,5 +1,5 @@
 use cgmath::*;
-use ray::*;
+use crate::ray::*;
 use rand::{thread_rng, Rng};
 
 pub struct Camera {

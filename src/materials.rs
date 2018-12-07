@@ -1,6 +1,6 @@
-use ray::*;
-use hittables::{ HitRecord };
-use utils::*;
+use crate::ray::*;
+use crate::hittables::{ HitRecord };
+use crate::utils::*;
 use cgmath::*;
 use rand::{ thread_rng, Rng };
 
@@ -148,7 +148,7 @@ impl Clone for Box<Material> {
 
 #[cfg(test)]
 mod material_tests {
-    use materials::{ Lambertian, Metal, Dielectric };
+    use crate::materials::{ Lambertian, Metal, Dielectric };
 
     #[test]
     pub fn test_box_clone_trait() {

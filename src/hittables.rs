@@ -1,6 +1,6 @@
-use ray::*;
+use crate::ray::*;
 use cgmath::*;
-use materials::{Material, Lambertian};
+use crate::materials::{Material, Lambertian};
 
 #[derive(Clone)]
 pub struct HitRecord {

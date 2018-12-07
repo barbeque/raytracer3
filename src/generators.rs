@@ -1,7 +1,7 @@
 use rand::{thread_rng, Rng};
-use hittables::*;
+use crate::hittables::*;
 use cgmath::*;
-use materials::*;
+use crate::materials::*;
 
 pub fn random_scene() -> Vec<Box<Hittable>> {
     let mut rng = thread_rng();

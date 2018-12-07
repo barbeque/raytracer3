@@ -5,16 +5,16 @@ use std::time::{ Instant };
 use rayon::prelude::*;
 
 mod ray;
-use ray::{Ray};
+use crate::ray::Ray;
 mod hittables;
-use hittables::*;
+use crate::hittables::*;
 mod camera;
-use camera::{ Camera };
+use crate::camera::{ Camera };
 mod utils;
-use utils::*;
+use crate::utils::*;
 mod materials;
 mod generators;
-use generators::*;
+use crate::generators::*;
 
 pub fn lerp_v(t : f32, start : Vector3<f32>, end : Vector3<f32>) -> Vector3<f32> {
     assert!(t <= 1.0);
@@ -129,7 +129,7 @@ fn main() {
 #[cfg(test)]
 mod lerp_tests {
     use cgmath::*;
-    use lerp_v;
+    use crate::lerp_v;
 
     #[test]
     pub fn works_at_extents() {

@@ -17,7 +17,7 @@ impl Ray {
 
 #[cfg(test)]
 mod ray_tests {
-    use ray::Ray;
+    use crate::ray::Ray;
     use cgmath::{ Vector3, InnerSpace };
 
     #[test]
